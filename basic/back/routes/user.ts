@@ -85,3 +85,24 @@ userRouter.delete("/:id", async (req: Request, res: Response) => {
         }
     }
 })
+
+userRouter.post('/login', async (req:Request, res:Response) => {
+    try {
+        const user = await User.findOne({
+            where : {
+                userId: req.body.userId,
+            }
+        })
+        if (user) {
+            const isMatch = await user.comparePassword(req.body.password, user.password) as boolean
+            if(!isMatch)
+                return res.status(404).send('패스워드가 다릅니다')
+            return res.status(200).send('로그인 성공')
+        }
+        res.status(404).send("user not found")
+    } catch (e:unknown) {
+        if (e instanceof Error) {
+            res.status(500).send(e.message)
+        }
+    }
+})

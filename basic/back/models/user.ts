@@ -3,6 +3,7 @@ import {
 } from 'sequelize';
 import { dbType } from './index';
 import { sequelize } from './sequelize';
+import * as bcrypt from "bcrypt";
 
 class User extends Model {
     public readonly id!: number;
@@ -11,6 +12,14 @@ class User extends Model {
     public password!: string;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
+
+    public comparePassword(plainPassowrd:string, userPassword:string) {
+        return new Promise(function (resolve, reject) {
+            bcrypt.compare(plainPassowrd, userPassword, function(err, isMatch) {
+                resolve(isMatch)
+            })
+        })
+    }
 }
 
 User.init({
