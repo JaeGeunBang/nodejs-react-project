@@ -24,7 +24,9 @@ class User extends Model {
 
     public generateToken(userId: string) {
         return new Promise(function(resolve, reject) {
-            jwt.sign(userId, 'secretToken', function(err, token) {
+            // incoding: userId + secretToken => Token
+            // decoding: token + secretToken => userId
+            jwt.sign( {userId: userId}, 'secretToken', function(err, token) {
                 resolve(token)
             })
         })

@@ -1,6 +1,8 @@
 import express, { Request, Response } from 'express';
 import * as bcrypt from 'bcrypt';
 import User from '../models/user'
+import { authHandler } from "../middleware/auth";
+
 
 export const userRouter = express.Router() ;
 
@@ -14,6 +16,23 @@ userRouter.get('/', async (req: Request, res: Response) => {
         }
     }
 });
+
+// auth라는 middleware 추가, callback function 하기전 미리 하기위함
+userRouter.get('/auth', authHandler, (req, res) => {
+    try {
+        res.status(200).json({
+            isAuth: true,
+            error: false,
+            userId: req.headers.userId,
+            nickname: req.headers.nickname,
+        })
+    } catch (e:unknown) {
+        if (e instanceof Error) {
+            res.status(500).send(e.message)
+        }
+    }
+
+})
 
 userRouter.get("/:id", async (req: Request, res: Response) => {
     const id: number = parseInt(req.params.id, 10)
@@ -45,7 +64,7 @@ userRouter.post("/", async (req: Request, res: Response) => {
             password: hashedPassword,
         })
         console.log(newUser)
-        return res.status(200).json(newUser)
+        res.status(200).json(newUser)
     } catch (e:unknown) {
         if (e instanceof Error) {
             res.status(500).send(e.message)
@@ -98,9 +117,13 @@ userRouter.post('/login', async (req:Request, res:Response) => {
             if(!isMatch)
                 return res.status(404).send('패스워드가 다릅니다')
             const token = await user.generateToken(user.userId) // 토큰 저장은 쿠키 or 로컬저장소에 저장
-            return res.cookie("x_auth", token).status(200).send('로그인 성공 - token: ' + token)
+            res.cookie('x_auth', token, {
+                maxAge: 24*60*60,
+                httpOnly: true
+            }).status(200).send('로그인 성공 - token: ' + token)
+        } else {
+            res.status(404).send("user not found")
         }
-        res.status(404).send("user not found")
     } catch (e:unknown) {
         if (e instanceof Error) {
             res.status(500).send(e.message)
