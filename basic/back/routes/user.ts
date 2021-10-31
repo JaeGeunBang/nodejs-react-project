@@ -97,7 +97,8 @@ userRouter.post('/login', async (req:Request, res:Response) => {
             const isMatch = await user.comparePassword(req.body.password, user.password) as boolean
             if(!isMatch)
                 return res.status(404).send('패스워드가 다릅니다')
-            return res.status(200).send('로그인 성공')
+            const token = await user.generateToken(user.userId) // 토큰 저장은 쿠키 or 로컬저장소에 저장
+            return res.cookie("x_auth", token).status(200).send('로그인 성공 - token: ' + token)
         }
         res.status(404).send("user not found")
     } catch (e:unknown) {

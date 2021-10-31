@@ -4,6 +4,7 @@ import {
 import { dbType } from './index';
 import { sequelize } from './sequelize';
 import * as bcrypt from "bcrypt";
+import * as jwt from "jsonwebtoken"
 
 class User extends Model {
     public readonly id!: number;
@@ -13,10 +14,18 @@ class User extends Model {
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
 
-    public comparePassword(plainPassowrd:string, userPassword:string) {
+    public comparePassword(plainPassowrd: string, userPassword: string) {
         return new Promise(function (resolve, reject) {
             bcrypt.compare(plainPassowrd, userPassword, function(err, isMatch) {
                 resolve(isMatch)
+            })
+        })
+    }
+
+    public generateToken(userId: string) {
+        return new Promise(function(resolve, reject) {
+            jwt.sign(userId, 'secretToken', function(err, token) {
+                resolve(token)
             })
         })
     }
