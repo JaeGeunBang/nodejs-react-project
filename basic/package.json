@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "dev": "ts-node-dev --respawn --pretty --transpile-only index.ts"
+    "dev": "ts-node-dev --respawn --pretty --transpile-only server/index.ts"
   },
   "author": "",
   "license": "ISC",
