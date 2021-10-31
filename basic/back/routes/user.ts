@@ -62,9 +62,68 @@ userRouter.post("/", async (req: Request, res: Response) => {
             nickname: user.nickname,
             userId: user.userId,
             password: hashedPassword,
+            token: "",
         })
         console.log(newUser)
         res.status(200).json(newUser)
+    } catch (e:unknown) {
+        if (e instanceof Error) {
+            res.status(500).send(e.message)
+        }
+    }
+})
+
+
+userRouter.post('/login', async (req:Request, res:Response) => {
+    try {
+        const user = await User.findOne({
+            where : {
+                userId: req.body.userId,
+            }
+        })
+        if (user) {
+            const isMatch = await user.comparePassword(req.body.password, user.password) as boolean
+            if(!isMatch)
+                return res.status(404).send('패스워드가 다릅니다')
+            const token = await user.generateToken(user.userId) // 토큰 저장은 쿠키 or 로컬저장소에 저장
+
+            await User.update({
+                token: token,
+            }, {
+                where: {id: user.id}
+            })
+            res.cookie('x_auth', token, {
+                maxAge: 24*60*60,
+                httpOnly: true
+            }).status(200).send('로그인 성공')
+        } else {
+            res.status(404).send("user not found")
+        }
+    } catch (e:unknown) {
+        if (e instanceof Error) {
+            res.status(500).send(e.message)
+        }
+    }
+})
+
+
+userRouter.post('/logout', authHandler, async (req:Request, res:Response) => {
+    try {
+        const user = await User.findOne({
+            where : {
+                userId: req.headers.userId,
+            }
+        })
+        if (user) {
+            await User.update({
+                token: "",
+            }, {
+                where: {id: user.id}
+            })
+            res.status(200).send('로그아웃 성공')
+        } else {
+            res.status(404).send("user not found")
+        }
     } catch (e:unknown) {
         if (e instanceof Error) {
             res.status(500).send(e.message)
@@ -78,6 +137,7 @@ userRouter.patch("/:id", async (req: Request, res: Response) => {
         const user = req.body;
         await User.update({
             nickname: user.nickname,
+            token: user.token,
         }, {
             where: {id: id}
         })
@@ -98,32 +158,6 @@ userRouter.delete("/:id", async (req: Request, res: Response) => {
             }
         })
         res.status(200).send("delete 완료")
-    } catch (e:unknown) {
-        if (e instanceof Error) {
-            res.status(500).send(e.message)
-        }
-    }
-})
-
-userRouter.post('/login', async (req:Request, res:Response) => {
-    try {
-        const user = await User.findOne({
-            where : {
-                userId: req.body.userId,
-            }
-        })
-        if (user) {
-            const isMatch = await user.comparePassword(req.body.password, user.password) as boolean
-            if(!isMatch)
-                return res.status(404).send('패스워드가 다릅니다')
-            const token = await user.generateToken(user.userId) // 토큰 저장은 쿠키 or 로컬저장소에 저장
-            res.cookie('x_auth', token, {
-                maxAge: 24*60*60,
-                httpOnly: true
-            }).status(200).send('로그인 성공 - token: ' + token)
-        } else {
-            res.status(404).send("user not found")
-        }
     } catch (e:unknown) {
         if (e instanceof Error) {
             res.status(500).send(e.message)

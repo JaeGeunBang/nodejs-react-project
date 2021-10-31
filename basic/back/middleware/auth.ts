@@ -10,9 +10,12 @@ export const authHandler = (
     try{
         let token = req.cookies.x_auth
         jwt.verify(token, 'secretToken', async function(err, decoded) {
+            if(!decoded)
+                return res.send('로그인을 먼저 해주세요')
             const user = await User.findOne({
                 where: {
-                    userId: (<any>decoded).userId
+                    userId: (<any>decoded).userId,
+                    token: token,
                 }
             })
             if (!user)

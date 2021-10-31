@@ -11,6 +11,7 @@ class User extends Model {
     public nickname!: string;
     public userId!: string;
     public password!: string;
+    public token!: string;
     public readonly createdAt!: Date;
     public readonly updatedAt!: Date;
 
@@ -44,6 +45,10 @@ User.init({
     },
     password: {
         type: DataTypes.STRING(100),
+        allowNull: false,
+    },
+    token: {
+        type: DataTypes.STRING(255),
         allowNull: false,
     }
 }, {
