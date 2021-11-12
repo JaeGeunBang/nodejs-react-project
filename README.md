@@ -87,6 +87,44 @@ React에서 페이지간 이동시 React Router Dom을 사용한다.
 
 **설치**
 ```typescript
-npm install react-router-dom
+npm install react-router-dom --save
+```
 
+### CORS 이슈 처리?
+
+Proxy 설정을 통해 CORS 이슈를 처리할수 있다.
+
+**설치**
+```typescript
+npm install http-proxy-middleware --save
+```
+
+src/setupProxy.js 생성 후 아래 코드 복사
+```typescript
+const { createProxyMiddleware } = require('http-proxy-middleware');
+
+module.exports = function(app) {
+    app.use(
+        '/api',
+        createProxyMiddleware({
+            target: 'http://localhost:8000',
+            changeOrigin: true,
+        })
+    )
+}
+```
+
+### Concurrently
+백앤드, 프론트 서버를 동시에 켤수 있음
+
+**설치**
+```typescript
+npm install concurrently --save
+```
+**사용방법**
+package.json에 아래와 같이 입력한다.
+```typescript
+"scripts": {
+  "all": "concurrently \"npm run backend\" \"npm run start --prefix client\""
+},
 ```
