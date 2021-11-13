@@ -95,7 +95,7 @@ userRouter.post('/login', async (req:Request, res:Response) => {
             res.cookie('x_auth', token, {
                 maxAge: 24*60*60,
                 httpOnly: true
-            }).status(200).send('로그인 성공')
+            }).status(200).json({loginSuccess: true, userId: user.userId})
         } else {
             res.status(404).send("user not found")
         }

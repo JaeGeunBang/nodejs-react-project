@@ -1,9 +1,57 @@
-import React from 'react'
+import React, {useState} from 'react'
+import {useDispatch} from "react-redux";
+import {loginUser} from "../../../_actions/user_action";
 
-function LoginPage() {
+import { useNavigate } from "react-router-dom";
+
+function LoginPage(props) {
+    const dispatch = useDispatch();
+    const navigate = useNavigate();
+
+    const [UserId, setUserId] = useState("")
+    const [Password, setPassword] = useState("")
+
+    const onUserIdHandler = (event) => {
+        setUserId(event.currentTarget.value)
+    }
+
+    const onPasswordHandler = (event) => {
+        setPassword(event.currentTarget.value)
+    }
+
+    const onSubmitHandler = (event) => {
+        event.preventDefault();
+
+        let body = {
+            userId: UserId,
+            password: Password
+        }
+
+        dispatch(loginUser(body))
+            .then(response => {
+                if(response.payload.loginSuccess) {
+                    navigate(-1);
+                    props.history.push('/')
+                } else {
+                    alert('Error ')
+                }
+        })
+    }
+
     return (
-        <div>
-            LoginPage
+        <div style={ { display:'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: '100vh'}}>
+            <form style ={{display:'flex', flexDirection: 'column'}}
+                onSubmit={onSubmitHandler}
+            >
+                <label>UserId</label>
+                <input type="text" value={UserId} onChange={onUserIdHandler} />
+                <label>Password</label>
+                <input type="password" value={Password} onChange={onPasswordHandler} />
+                <br />
+                <button>
+                    Login
+                </button>
+            </form>
         </div>
     );
 }
