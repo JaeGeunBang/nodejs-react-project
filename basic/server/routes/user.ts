@@ -64,8 +64,7 @@ userRouter.post("/", async (req: Request, res: Response) => {
             password: hashedPassword,
             token: "",
         })
-        console.log(newUser)
-        res.status(200).json(newUser)
+        res.status(200).json({registerSuccess: true, userId: user.userId})
     } catch (e:unknown) {
         if (e instanceof Error) {
             res.status(500).send(e.message)
@@ -84,7 +83,7 @@ userRouter.post('/login', async (req:Request, res:Response) => {
         if (user) {
             const isMatch = await user.comparePassword(req.body.password, user.password) as boolean
             if(!isMatch)
-                return res.status(404).send('패스워드가 다릅니다')
+                return res.status(404).json({loginSuccess: false, message: "패스워드 틀림"})
             const token = await user.generateToken(user.userId) // 토큰 저장은 쿠키 or 로컬저장소에 저장
 
             await User.update({
@@ -95,9 +94,9 @@ userRouter.post('/login', async (req:Request, res:Response) => {
             res.cookie('x_auth', token, {
                 maxAge: 24*60*60,
                 httpOnly: true
-            }).status(200).json({loginSuccess: true, userId: user.userId})
+            }).status(200).json({loginSuccess: true, message: "로그인 성공", userId: user.userId})
         } else {
-            res.status(404).send("user not found")
+            res.status(404).json({loginSuccess: false, message: "사용자 에러"})
         }
     } catch (e:unknown) {
         if (e instanceof Error) {

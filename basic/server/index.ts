@@ -19,7 +19,7 @@ if (!process.env.PORT) {
 const PORT: number = parseInt(process.env.PORT as string, 10);
 const app = express();
 
-app.use(cookieParser())
+app.use(cookieParser());
 
 sequelize.sync({ force: false }) // force를 true로 하면 시작할때마다 db를 초기화함
     .then(() => {
