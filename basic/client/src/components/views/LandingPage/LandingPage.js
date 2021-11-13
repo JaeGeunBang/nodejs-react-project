@@ -9,7 +9,10 @@ function LandingPage() {
     // }, [])
 
     const onClickHandler = () => {
-        axios.get('http://localhost:8000/api/v1/user/logout')
+        axios.get('http://localhost:8000/api/v1/user/logout',
+            {
+                withCredentials: true
+            })
             .then(response => {
                 console.log(response.data)
             })

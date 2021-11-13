@@ -5,6 +5,7 @@ import cors from "cors";
 import helmet from "helmet";
 import {sequelize} from "./models";
 import { userRouter } from "./routes/user";
+import { indexRouter } from "./routes/index";
 import { errorHandler } from "./middleware/error.middleware";
 import { notFoundHandler } from "./middleware/not-found.middleware";
 import {authHandler} from "./middleware/auth";
@@ -30,8 +31,12 @@ sequelize.sync({ force: false }) // force를 true로 하면 시작할때마다 d
     });
 
 app.use(helmet());
-app.use(cors());
+app.use(cors({
+    origin: true,
+    credentials: true
+}));
 app.use(express.json());
+app.use("/", indexRouter);
 app.use("/api/v1/user", userRouter);
 app.use(errorHandler);
 app.use(notFoundHandler);

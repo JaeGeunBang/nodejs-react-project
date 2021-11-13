@@ -5,7 +5,10 @@ import {
 } from './types';
 
 export function loginUser(dataToSubmit) {
-    const request = axios.post('http://localhost:8000/api/v1/user/login', dataToSubmit)
+    const request = axios.post('http://localhost:8000/api/v1/user/login', dataToSubmit,
+        {
+            withCredentials: true
+        })
         .then(response => response.data)
     return {
         type: LOGIN_USER,

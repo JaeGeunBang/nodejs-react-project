@@ -34,6 +34,30 @@ userRouter.get('/auth', authHandler, (req, res) => {
 
 })
 
+userRouter.get('/logout', authHandler, async (req:Request, res:Response) => {
+    try {
+        const user = await User.findOne({
+            where : {
+                userId: req.headers.userId,
+            }
+        })
+        if (user) {
+            await User.update({
+                token: "",
+            }, {
+                where: {id: user.id}
+            })
+            res.status(200).send('로그아웃 성공')
+        } else {
+            res.status(404).send("user not found")
+        }
+    } catch (e:unknown) {
+        if (e instanceof Error) {
+            res.status(500).send(e.message)
+        }
+    }
+})
+
 userRouter.get("/:id", async (req: Request, res: Response) => {
     const id: number = parseInt(req.params.id, 10)
 
@@ -97,31 +121,6 @@ userRouter.post('/login', async (req:Request, res:Response) => {
             }).status(200).json({loginSuccess: true, message: "로그인 성공", userId: user.userId})
         } else {
             res.status(404).json({loginSuccess: false, message: "사용자 에러"})
-        }
-    } catch (e:unknown) {
-        if (e instanceof Error) {
-            res.status(500).send(e.message)
-        }
-    }
-})
-
-
-userRouter.post('/logout', authHandler, async (req:Request, res:Response) => {
-    try {
-        const user = await User.findOne({
-            where : {
-                userId: req.headers.userId,
-            }
-        })
-        if (user) {
-            await User.update({
-                token: "",
-            }, {
-                where: {id: user.id}
-            })
-            res.status(200).send('로그아웃 성공')
-        } else {
-            res.status(404).send("user not found")
         }
     } catch (e:unknown) {
         if (e instanceof Error) {
