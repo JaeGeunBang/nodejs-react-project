@@ -11,7 +11,7 @@ export const authHandler = (
         let token = req.cookies.x_auth
         jwt.verify(token, 'secretToken', async function(err, decoded) {
             if(!decoded)
-                return res.send('로그인을 먼저 해주세요')
+                return res.json({isAuth: false, error: true, message: '로그인을 먼저 해주세요'})
             const user = await User.findOne({
                 where: {
                     userId: (<any>decoded).userId,
@@ -19,7 +19,7 @@ export const authHandler = (
                 }
             })
             if (!user)
-                return res.json({isAuth: false, error: true})
+                return res.json({isAuth: false, error: true,  message: '존재하지 않는 유저입니다.'})
 
             req.headers.token = token
             req.headers.userId = user.userId

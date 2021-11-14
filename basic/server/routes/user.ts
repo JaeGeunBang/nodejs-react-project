@@ -88,7 +88,7 @@ userRouter.post("/", async (req: Request, res: Response) => {
             password: hashedPassword,
             token: "",
         })
-        res.status(200).json({registerSuccess: true, userId: user.userId})
+        res.status(200).json({register: true, userId: user.userId})
     } catch (e:unknown) {
         if (e instanceof Error) {
             res.status(500).send(e.message)

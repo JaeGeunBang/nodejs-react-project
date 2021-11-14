@@ -1,9 +1,9 @@
 import React, {useState} from 'react'
 import {useDispatch} from "react-redux";
-import {useNavigate} from "react-router-dom";
 import {RegisterUser} from "../../../_actions/user_action";
+import { useNavigate } from "react-router-dom";
 
-function RegisterPage(props) {
+function RegisterPage() {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
@@ -39,9 +39,8 @@ function RegisterPage(props) {
 
         dispatch(RegisterUser(body))
             .then(response => {
-                if(response.payload.registerSuccess) {
-                    navigate(-1);
-                    props.history.push('/login')
+                if(response.payload.register) {
+                    navigate('/login')
                 } else {
                     alert(response.payload.message)
                 }
