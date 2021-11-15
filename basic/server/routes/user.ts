@@ -78,7 +78,7 @@ userRouter.get("/:id", async (req: Request, res: Response) => {
     }
 })
 
-userRouter.post("/", async (req: Request, res: Response) => {
+userRouter.post("/register", async (req: Request, res: Response) => {
     try {
         const user = req.body;
         const hashedPassword = await bcrypt.hash(req.body.password, 12);
@@ -88,7 +88,7 @@ userRouter.post("/", async (req: Request, res: Response) => {
             password: hashedPassword,
             token: "",
         })
-        res.status(200).json({register: true, userId: user.userId})
+        res.status(200).json({success: true, userId: user.userId})
     } catch (e:unknown) {
         if (e instanceof Error) {
             res.status(500).send(e.message)

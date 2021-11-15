@@ -252,3 +252,8 @@ export default function Hello() {
     );
 }
 ```
+
+### HOC
+Higher Order Component
+- 다른 Component를 받아 새로운 Component 반환해주는 Function
+

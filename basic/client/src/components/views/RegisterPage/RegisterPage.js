@@ -1,72 +1,177 @@
-import React, {useState} from 'react'
-import {useDispatch} from "react-redux";
-import {RegisterUser} from "../../../_actions/user_action";
-import { useNavigate } from "react-router-dom";
+import React from "react";
+import moment from "moment";
+import { Formik } from 'formik';
+import * as Yup from 'yup';
+import { registerUser } from "../../../_actions/user_actions";
+import { useDispatch } from "react-redux";
 
-function RegisterPage() {
-    const dispatch = useDispatch();
-    const navigate = useNavigate();
+import {
+  Form,
+  Input,
+  Button,
+} from 'antd';
 
-    const [UserId, setUserId] = useState("")
-    const [Nickname, setNickname] = useState("")
-    const [Password, setPassword] = useState("")
-    const [ConfirmPassword, setConfirmPassword] = useState("")
+const formItemLayout = {
+  labelCol: {
+    xs: { span: 24 },
+    sm: { span: 8 },
+  },
+  wrapperCol: {
+    xs: { span: 24 },
+    sm: { span: 16 },
+  },
+};
+const tailFormItemLayout = {
+  wrapperCol: {
+    xs: {
+      span: 24,
+      offset: 0,
+    },
+    sm: {
+      span: 16,
+      offset: 8,
+    },
+  },
+};
 
-    const onUserIdHandler = (event) => {
-        setUserId(event.currentTarget.value)
-    }
+function RegisterPage(props) {
+  const dispatch = useDispatch();
+  return (
 
-    const onNicknameHandler = (event) => {
-        setNickname(event.currentTarget.value)
-    }
+      <Formik
+          initialValues={{
+            userId: '',
+            nickname: '',
+            password: '',
+            confirmPassword: ''
+          }}
+          validationSchema={Yup.object().shape({
+            nickname: Yup.string()
+                .required('nickname is required'),
+            userId: Yup.string()
+                .required('userId is required'),
+            password: Yup.string()
+                .required('Password is required'),
+            confirmPassword: Yup.string()
+                .oneOf([Yup.ref('password'), null], 'Passwords must match')
+                .required('Confirm Password is required')
+          })}
+          onSubmit={(values, { setSubmitting }) => {
+            setTimeout(() => {
 
-    const onPasswordHandler = (event) => {
-        setPassword(event.currentTarget.value)
-    }
+              let dataToSubmit = {
+                nickname: values.nickname,
+                userId: values.userId,
+                password: values.password,
+              };
 
-    const onConfirmPasswordHandler = (event) => {
-        setConfirmPassword(event.currentTarget.value)
-    }
-
-    const onSubmitHandler = (event) => {
-        event.preventDefault();
-
-        let body = {
-            userId: UserId,
-            nickname: Nickname,
-            password: Password
-        }
-
-        dispatch(RegisterUser(body))
-            .then(response => {
-                if(response.payload.register) {
-                    navigate('/login')
+              dispatch(registerUser(dataToSubmit)).then(response => {
+                if (response.payload.success) {
+                  props.history.push("/login");
                 } else {
-                    alert(response.payload.message)
+                  alert(response.payload.err)
                 }
-            })
-    }
+              })
 
-    return (
-        <div style={ { display:'flex', justifyContent: 'center', alignItems: 'center', width: '100%', height: '100vh'}}>
-            <form style ={{display:'flex', flexDirection: 'column'}}
-                  onSubmit={onSubmitHandler}
-            >
-                <label>UserId</label>
-                <input type="text" value={UserId} onChange={onUserIdHandler} />
-                <label>Nickname</label>
-                <input type="text" value={Nickname} onChange={onNicknameHandler} />
-                <label>Password</label>
-                <input type="password" value={Password} onChange={onPasswordHandler} />
-                <label>Confirm Password</label>
-                <input type="password" value={ConfirmPassword} onChange={onConfirmPasswordHandler} />
-                <br />
-                <button>
-                    회원 가입
-                </button>
-            </form>
-        </div>
-    );
-}
+              setSubmitting(false);
+            }, 500);
+          }}
+      >
+        {props => {
+          const {
+            values,
+            touched,
+            errors,
+            isSubmitting,
+            handleChange,
+            handleBlur,
+            handleSubmit,
+          } = props;
+          return (
+              <div className="app">
+                <h2>Sign up</h2>
+                <Form style={{ minWidth: '375px' }} {...formItemLayout} onSubmit={handleSubmit} >
+
+                  <Form.Item required label="Name">
+                    <Input
+                        id="nickname"
+                        placeholder="Enter your nickname"
+                        type="text"
+                        value={values.nickname}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        className={
+                          errors.name && touched.name ? 'text-input error' : 'text-input'
+                        }
+                    />
+                    {errors.name && touched.name && (
+                        <div className="input-feedback">{errors.name}</div>
+                    )}
+                  </Form.Item>
+
+                  <Form.Item required label="user id">
+                    <Input
+                        id="userId"
+                        placeholder="Enter your userId"
+                        type="text"
+                        value={values.userId}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        className={
+                          errors.lastName && touched.lastName ? 'text-input error' : 'text-input'
+                        }
+                    />
+                    {errors.lastName && touched.lastName && (
+                        <div className="input-feedback">{errors.lastName}</div>
+                    )}
+                  </Form.Item>
+
+                  <Form.Item required label="Password" hasFeedback validateStatus={errors.password && touched.password ? "error" : 'success'}>
+                    <Input
+                        id="password"
+                        placeholder="Enter your password"
+                        type="password"
+                        value={values.password}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        className={
+                          errors.password && touched.password ? 'text-input error' : 'text-input'
+                        }
+                    />
+                    {errors.password && touched.password && (
+                        <div className="input-feedback">{errors.password}</div>
+                    )}
+                  </Form.Item>
+
+                  <Form.Item required label="Confirm" hasFeedback>
+                    <Input
+                        id="confirmPassword"
+                        placeholder="Enter your confirmPassword"
+                        type="password"
+                        value={values.confirmPassword}
+                        onChange={handleChange}
+                        onBlur={handleBlur}
+                        className={
+                          errors.confirmPassword && touched.confirmPassword ? 'text-input error' : 'text-input'
+                        }
+                    />
+                    {errors.confirmPassword && touched.confirmPassword && (
+                        <div className="input-feedback">{errors.confirmPassword}</div>
+                    )}
+                  </Form.Item>
+
+                  <Form.Item {...tailFormItemLayout}>
+                    <Button onClick={handleSubmit} type="primary" disabled={isSubmitting}>
+                      Submit
+                    </Button>
+                  </Form.Item>
+                </Form>
+              </div>
+          );
+        }}
+      </Formik>
+  );
+};
+
 
 export default RegisterPage
