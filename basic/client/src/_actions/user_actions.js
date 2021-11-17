@@ -22,7 +22,7 @@ export function loginUser(dataToSubmit){
         {
             withCredentials: true
         })
-                .then(response => response.data);
+        .then(response => response.data);
 
     return {
         type: LOGIN_USER,
