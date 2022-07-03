@@ -42,6 +42,16 @@ npm run start
 ```
 
 ### 개념
+React 특징
+- Component로 이루어져 있다. (module과 비슷하게 컴포넌트로 이루어 재사용성이 뛰어함)
+- Virtual DOM
+  - Real DOM은?
+    1. 만약 10개의 리스트가 있다면
+    2. 그 중 한개의 리스트만 update 된다면
+    3. 전체 리스트를 다시 Reload 해야함
+  - Virtual DOM은 바뀐 부분만 Update 할수 있음
+    - 어떻게? Virtual DOM은 Snapshot을 찍어두고 바뀐 부분만 찾아서 바꿔준다 (diffing)
+
 Babel?
 - 최신 자바스크립트 문법을 지원하지 않는 브라우저들을 위해, 최신 자바스크립트 문법을 구형 브라우저에서도 돌수있도록 변환시켜줌
 
@@ -61,25 +71,32 @@ webpack은 src/ 폴더내 파일들을 관리해준다.
 - 즉, src/에 넣어야 webpack이 bundle 할수 있다.
 
 src/ 내 구조를 아래처럼 바꿀수 있다.
-_actions, _reducer
-- Redux를 위한 플도
+#### _actions, _reducer
+- Redux를 위한 폴더
 
-components/views
+#### components/views
 - Page를 넣는다.
 
-components/views/Sections
+#### components/views/Sections
 - 해당 페이지에 관련된 css, component들을 넣는다.
 
-App.js
+#### App.js
 - Routing 관련 일을 처리한다.
 
-Config.js
+#### Config.js
 - 환경 변수같은 것들을 정하는 곳이다.
 
-hoc
+#### hoc
 - Higher Order Comoponent 약자
+- 다른 Component를 감쌀수 있는 Component
 
-utils
+ex)
+```typescript
+<Route exact path="/" component={Auth(LandingPage, null)} />
+```
+- LandingPage에 들어가기위해선 Auth() Component를 거쳐야함
+
+#### utils
 - 여러 군데에서 쓰일것들을 넣어준다.
 
 ### React Router Dom
@@ -89,6 +106,9 @@ React에서 페이지간 이동시 React Router Dom을 사용한다.
 ```typescript
 npm install react-router-dom --save
 ```
+
+예제 사이트
+- https://v5.reactrouter.com/web/example/basic
 
 ### CORS 이슈 처리?
 
@@ -152,6 +172,24 @@ Component의 state 관리해주는 javascript 라이브러리
 - 크게 Props, State (= Redux가 관리)가 있다.
 - Props는 Class Component, State Functional Component에서 사용하는것(?) 같음.
 
+Props, State의 차이?
+- Props는 부모에서 자식에게 데이터를 전달해줄때 사용할수 있다.
+```html
+<ChartMessages
+  message={message}
+  currentMember={member}
+/>
+위와 같이 부모에서 ChartMessage 라는 Component를 호출할때, message, member를 전달해줄수 있다.
+```
+
+- State는 아래와같이 정의하면 어느 Component든 데이터를 공유받을수 있다.
+```typescript
+state = {
+    message: '',
+    memger: ''
+}
+```
+
 <img width="361" alt="스크린샷 2021-11-12 오후 4 37 06" src="https://user-images.githubusercontent.com/22383120/141428538-858c5b4e-c96e-486f-b83d-f7dfcc3e3aea.png">
 
 - Redux를 사용하지 않는다면, 특정 Component의 변화가 있을시 해당 변경된 내용을 상위 Component로 타고(?) 올라가면서 변화를 반영한다.
@@ -159,10 +197,46 @@ Component의 state 관리해주는 javascript 라이브러리
 
 <img width="387" alt="스크린샷 2021-11-12 오후 5 29 32" src="https://user-images.githubusercontent.com/22383120/141435518-07e842e4-d482-4377-b938-38627e0589a2.png">
 
-- Redux 데이터 Flow이며, 
-  - Action: 무엇이 일어났는지 (변경? 삭제?) 설명해주는 Object (React Component가 Action에게 state를 알려준다.)
-  - Reducer: state이 어떻게 변화했으때, (변경이면 user age가 21->22) 이를 설명해주는 Object
-  - Store: state의 변화된 내용을 저장하는 Object
+Redux 데이터 Flow (한방향으로만 진행)
+1. React Component가 Dispatch(action)을 먼저 수행한다.
+2. Action: 무엇이 일어났는지 (변경? 삭제?) 설명해주는 Object
+```typescript
+export function registerUser(dataToSubmit){
+  const request = axios.post(`${USER_SERVER}/register`,dataToSubmit)
+          .then(response => response.data);
+
+  return {
+    type: REGISTER_USER,
+    payload: request
+  }
+}
+```
+액션(function)을 수행하고 type, payload 형태로 반환해준다.
+
+3. Reducer: state이 어떻게 변화했으때, (변경이면 user age가 21->22) 이를 설명해주는 Object
+```typescript
+export default function(state={},action){
+    switch(action.type){
+        case REGISTER_USER:
+            return {...state, register: action.payload }
+        case LOGIN_USER:
+            return { ...state, loginSuccess: action.payload }
+        case AUTH_USER:
+            return {...state, userData: action.payload }
+        case LOGOUT_USER:
+            return {...state }
+        default:
+            return state;
+    }
+}
+```
+reducer는 action 에서 반환해주는 type을 설명(=모아준다) 해준다.
+
+4. Store: state의 변화된 내용을 저장하는 Object
+```typescript
+window.localStorage.setItem('userId', response.payload.userId);
+```
+action 수행후 반환된 결과를 localStorage에 저장한다.
 
 **설치**
 ```typescript
@@ -173,9 +247,7 @@ npm install redux-thunk --save
 ```
 
 Redux promise, thunk는 Redux를 잘사용하기 위한(?) middleware
-
-Redux Dev tools도 다운받아야 함.
-- https://chrome.google.com/webstore/detail/redux-devtools/lmhkpmbekcpmknklioeibfkpmmfibljd?hl=ko
+- object 반환을 promise 또는 function 형식으로 받을수 있는데, 그 형식을 dispatch에게 알려주기 위해 필요하다.
 
 
 ### React Hooks
@@ -252,8 +324,3 @@ export default function Hello() {
     );
 }
 ```
-
-### HOC
-Higher Order Component
-- 다른 Component를 받아 새로운 Component 반환해주는 Function
-
