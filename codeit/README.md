@@ -30,7 +30,7 @@ jsx에서는 같은 tag를 연속으로 쓰지 못하는데 그럴떄 <div>로 �
 - 함수 이름은 꼭 대문자로 시작해야함
 - return 값은 항상 jsx 문법으로 만 react element를 반환해야함
 
-```html
+```javascript
 function Hello() {
     return <h1>안녕 리액트</h1>
 }
@@ -47,13 +47,13 @@ const element = (
 ### Props
 상위 Component가 하위 Component에게 데이터를 전달해주기 위함
 
-```html
+```javascript
 ...
 <Dice color="red" num={2} />
 ...
 ```
 
-```html
+```javascript
 ...
 function Dice({ color = 'blue', num = 1 }) {
     const src = DICE_IMAGES[color][num - 1];
@@ -67,13 +67,13 @@ function Dice({ color = 'blue', num = 1 }) {
 
 Props의 다른 버젼으로 위 Props처럼 파라미터로 넘겨줄수 있지만, 아래처럼 좀더 직관적으로 코드를 만들수 있다
 
-```html
+```javascript
 ...
 <Button>던지기</Button>
 ...
 ``` 
 
-```html
+```javascript
 ...
 function Button({ children }) {
     return <button>{children}</button>;
@@ -81,4 +81,35 @@ function Button({ children }) {
 
 export default Button;
 ...
+```
+
+### State
+State는 React가 쓰는 데이터 같은건데, State가 바뀌면 알아서 렌더링 해준다
+- 아래처럼 정의해서 사용할수 있다
+
+```javascript
+const [num, setNum] = useState(1);
+
+function random(n) {
+    return Math.ceil(Math.random() * n);
+}
+
+const handlerRollClick = () => {
+    const nextNum = random(6)
+    setNum(nextNum);
+}
+
+const handlerClearClick = () => {
+    setNum(1);
+}
+
+return (
+    <div>
+        <div>
+            <Button onClick={handlerRollClick}>던지기</Button>
+            <Button onClick={handlerClearClick}>처음부터</Button>
+        </div>
+        <Dice color="red" num={num} />
+    </div>
+);
 ```
