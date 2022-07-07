@@ -1,3 +1,4 @@
+import './ReviewList.css';
 
 function formatDate(value) {
     const date = new Date(value);
