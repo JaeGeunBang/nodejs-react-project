@@ -5,10 +5,10 @@ function formatDate(value) {
     return `${date.getFullYear()}. ${date.getMonth() + 1}. ${date.getDate()}`;
 }
 
-
-function ReviewListItem( { item, onDelete }) {
-
-    const handleDeleteClick = () => onDelete(item.id);
+function ReviewListItem({ item, onDelete }) {
+    const handleDeleteClick = () => {
+        onDelete(item.id);
+    };
 
     return (
         <div className="ReviewListItem">
@@ -38,4 +38,4 @@ function ReviewList({ items, onDelete }) {
     );
 }
 
-export default ReviewList ;
+export default ReviewList;
