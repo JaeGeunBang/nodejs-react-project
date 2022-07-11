@@ -44,3 +44,68 @@ useEffect(() => {
 그 이후로 렌더링 할 때는 디펜던시 리스트에 있는 값들을 확인해서
 
 하나라도 바뀌면  콜백 함수를 기억해뒀다가 실행합니다.
+
+## Ref
+원하는 시점에 DOM 노드에 접근하고 싶을때 사용한다.
+
+### Ref 객체 생성
+```typescript
+import { useRef } from 'react';
+
+// ...
+
+const ref = useRef();
+```
+
+### Ref Props 사용
+```typescript
+const ref = useRef();
+
+// ...
+
+<div ref={ref}> ... </div>
+```
+
+### Ref 객체에서 DOM 노드 참조
+```typescript
+const node = ref.current;
+if (node) {
+  // node 를 사용하는 코드
+}
+```
+
+### 예제
+```typescript
+const inputRef = useRef();
+
+const handleChange = (e) => {
+    const nextValue = e.target.files[0];
+    onChange(name, nextValue);
+};
+
+const handleClearClick = () => {
+    const inputNode = inputRef.current ;
+    if (!inputNode) return ; // DOM 노드가 랜더링 되지 않을수 있으니 if문은 필수!! 
+
+    inputNode.value = '';
+    onChange(name, null) ;
+}
+
+useEffect(() => {
+    if (!value) return;
+    const nextPreview = URL.createObjectURL(value);
+    setPreview(nextPreview);
+}, [value]);
+
+return (
+    <div>
+        <img src={preview} alt="이미지 미리보기"/>
+<input type="file" onChange={handleChange} ref={inputRef}/>;
+{value && <button onClick={handleClearClick}>X</button>}
+    </div>
+)
+```
+
+<input> type을 ref (inputRef)로 정의한다.
+- 그럼 다른데서 inputRef.current를 하면 해당 DOM 노드에 접근할수 있다.
+- Clear 버튼을 누르면, inputRef.current를 통해 해당 DOM 노드 (input type)을 가져와서 values를 초기화해준다.

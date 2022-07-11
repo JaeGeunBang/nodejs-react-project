@@ -21,6 +21,11 @@ function FileInput({ name, value, onChange }) {
         if (!value) return;
         const nextPreview = URL.createObjectURL(value);
         setPreview(nextPreview);
+
+        return () => { // 사이드 이팩트 정리 함수 (메모리 할당된 object를 해제 - class의 소멸자 역할?)
+            setPreview() ;
+            URL.revokeObjectURL(nextPreview) ;
+        }
     }, [value]);
 
     return (
