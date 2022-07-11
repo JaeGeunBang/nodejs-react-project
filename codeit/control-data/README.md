@@ -22,6 +22,8 @@ setItems((prevItems) => [...prevItems, ...reviews]);
 - 즉, 중간에 누가 items를 지우더라도 prevItems 콜백 함수가 시작되는 시점의 items를 가져오기 때문에 정상적으로 삭제처리된다.
 
 ## useEffect
+react에서 use~로 시작하는 (useEffect, useState 등)은 모두 React Hook 이다.
+
 ### 처음만 실행
 ```
 useEffect(() => {
@@ -106,6 +108,45 @@ return (
 )
 ```
 
-<input> type을 ref (inputRef)로 정의한다.
+`<input>` type을 ref (inputRef)로 정의한다.
 - 그럼 다른데서 inputRef.current를 하면 해당 DOM 노드에 접근할수 있다.
 - Clear 버튼을 누르면, inputRef.current를 통해 해당 DOM 노드 (input type)을 가져와서 values를 초기화해준다.
+
+### useCallback
+함수를 매번 새로 생성하는것이 아닌 디펜던시 리스트가 변경될때마다 함수를 생성
+
+```typescript
+const handleLoad = useCallback((option) => {
+  // ...
+}, [dep1, dep2, dep3, ...]);
+```
+
+결론적으로, useEffect 내에 사용하는 함수는 useCallback 형태로 구현되어 있어야 한다.
+```typescript
+// useEffect내 에서 handleLoad를 호출함
+useEffect(() => {
+    handleLoad({ order, offset: 0, limit: LIMIT });
+}, [order, handleLoad]);
+
+// handledLoad는 useCallback을 통해 구현해야한다.
+const handleLoad = useCallback(
+    async (options) => {
+        const result = await getReviewsAsync(options);
+        if (!result) return;
+
+        const { paging, reviews } = result;
+        if (options.offset === 0) {
+            setItems(reviews);
+        } else {
+            setItems((prevItems) => [...prevItems, ...reviews]);
+        }
+        setOffset(options.offset + options.limit);
+        setHasNext(paging.hasNext);
+    },
+    [getReviewsAsync]
+);
+```
+
+여기에서도 마찬가지로, useCallback 내에 호출하는 함수가 있으면, 그 함수를 dependency에 추가해야되며 이 함수또한 useCallback으로 구현해야된다.
+- 참고로 setItems, setOffect, setHasNext는 React 에서 제공하는 setter 함수이므로, dependency에 추가 안해도됨
+- 여기선 getReviewsAsync만 추가하면 된다. (그럼 getReviewsAsync 내에서도 호출하는 외부 함수는 dependency를 추가해줘야함)
