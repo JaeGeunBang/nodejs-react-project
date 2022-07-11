@@ -1,70 +1,46 @@
-# Getting Started with Create React App
+# 공부 정리 내용
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## setState에서 ... 의 의미는?
+```typescript
+setItems([...items, ...reviews]);
+```
+items에 현재 들어있는 items 값과 새로 받아온 reviews 값을 합쳐서 새로운 items를 만들겠다는 의미.
+- 이를 스프레드 문법이라 한다.
 
-## Available Scripts
+### 비동기 State 변경시 주의사항
+```typescript
+setItems([...items, ...reviews]);
+```
+reviews = await getItems()후 위와 같이 setItems를 정의했을때, 만약 다른 곳에서 items를 지우는 작업을 한다면?
+- items는 getItems() 시점의 items를 기억한다.
+- 즉, 중간에 누가 items를 지우더라도 지운 item이 다시 생성된다.
 
-In the project directory, you can run:
+```typescript
+setItems((prevItems) => [...prevItems, ...reviews]);
+```
+위와 같이 바꿔주면, prevItesm는 콜백 함수이기 때문에 함수 호출 완료 후 시점의 items를 기억한다.
+- 즉, 중간에 누가 items를 지우더라도 prevItems 콜백 함수가 시작되는 시점의 items를 가져오기 때문에 정상적으로 삭제처리된다.
 
-### `npm start`
+## useEffect
+### 처음만 실행
+```
+useEffect(() => {
+  // 실행할 코드
+}, []);
+```
+컴포넌트가 처음 렌더링 되고 나면 리액트가 콜백 함수를 기억해뒀다가 실행합니다.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+그 이후로는 콜백 함수를 실행하지 않습니다.
+- 새로고침 하면 계속 실행될것
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### 값이 바뀔때마다 실행
+```
+useEffect(() => {
+  // 실행할 코드
+}, [dep1, dep2, dep3, ...]);
+```
+컴포넌트가 처음 렌더링 되고 나면 리액트가 콜백 함수를 기억해뒀다가 실행합니다.
 
-### `npm test`
+그 이후로 렌더링 할 때는 디펜던시 리스트에 있는 값들을 확인해서
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
-
-### `npm run build`
-
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
-
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
-
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
-
-### `npm run eject`
-
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
-
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
-
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+하나라도 바뀌면  콜백 함수를 기억해뒀다가 실행합니다.
