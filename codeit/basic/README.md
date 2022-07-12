@@ -1,70 +1,160 @@
-# Getting Started with Create React App
+# 공부 내용 정리
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## 기본 용어 설명
+### jsx
+javascript + html 문법을 섞음 (javascript의 확장판)
+- 모든 html 문법을 다 사용하진 못함
 
-## Available Scripts
+### Fragement
+jsx에서는 같은 tag를 연속으로 쓰지 못하는데 그럴떄 <div>로 묶어준다
 
-In the project directory, you can run:
+```html
+<div>
+    <p>asd</p>
+    <p>qwe</p>
+</div>
+```
 
-### `npm start`
+하지만 Fragement를 활용하여 불필요한 div를 줄일수 있다.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+```html
+<>
+    <p>asd</p>
+    <p>qwe</p>
+</>
+```
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+### Component
 
-### `npm test`
+아래와 같이 Hello() 함수는 Component라 하며, 이는 html tag처럼 사용할수 있다.
+- 함수 이름은 꼭 대문자로 시작해야함
+- return 값은 항상 jsx 문법으로 만 react element를 반환해야함
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+```javascript
+function Hello() {
+    return <h1>안녕 리액트</h1>
+}
 
-### `npm run build`
+const element = (
+    <>
+        <Hello />
+        <Hello />
+        <Hello />
+    </>
+)
+```
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Props
+상위 Component가 하위 Component에게 데이터를 전달해주기 위함
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```javascript
+...
+<Dice color="red" num={2} />
+...
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+```javascript
+...
+function Dice({ color = 'blue', num = 1 }) {
+    const src = DICE_IMAGES[color][num - 1];
+    const alt = `${color} ${num}`;
+    return <img src={src} alt={alt} />;
+}
+...
+```
 
-### `npm run eject`
+### Children Props
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Props의 다른 버젼으로 위 Props처럼 파라미터로 넘겨줄수 있지만, 아래처럼 좀더 직관적으로 코드를 만들수 있다
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```javascript
+...
+<Button>던지기</Button>
+...
+``` 
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```javascript
+...
+function Button({ children }) {
+    return <button>{children}</button>;
+}
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+export default Button;
+...
+```
 
-## Learn More
+### State
+State는 React가 쓰는 데이터 같은건데, State가 바뀌면 알아서 렌더링 해준다
+- 아래처럼 정의해서 사용할수 있다
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```javascript
+const [num, setNum] = useState(1);
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+function random(n) {
+    return Math.ceil(Math.random() * n);
+}
 
-### Code Splitting
+const handlerRollClick = () => {
+    const nextNum = random(6)
+    setNum(nextNum);
+}
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+const handlerClearClick = () => {
+    setNum(1);
+}
 
-### Analyzing the Bundle Size
+return (
+    <div>
+        <div>
+            <Button onClick={handlerRollClick}>던지기</Button>
+            <Button onClick={handlerClearClick}>처음부터</Button>
+        </div>
+        <Dice color="red" num={num} />
+    </div>
+);
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### 참조형 State
+기본형이 아닌 배열, 객체 같은 얘들은 참조형 State
 
-### Making a Progressive Web App
+```javascript
+const [num, setNum] = useState(1);
+const [sum, setSum] = useState(0) ;
+const [gameHistory, setGameHistory] = useState([]);
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+function random(n) {
+    return Math.ceil(Math.random() * n);
+}
 
-### Advanced Configuration
+const handlerRollClick = () => {
+    const nextNum = random(6)
+    setNum(nextNum);
+    setSum(sum + nextNum)
+    setGameHistory([...gameHistory, nextNum]); // 참조형 객체는 아래처럼 만들어야 함
+}
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+const handlerClearClick = () => {
+    setNum(1);
+    setSum(0);
+    setGameHistory([]);
+}
 
-### Deployment
+return (
+    <div>
+        <div>
+            <Button onClick={handlerRollClick}>던지기</Button>
+            <Button onClick={handlerClearClick}>처음부터</Button>
+        </div>
+        <Dice color="red" num={num} />
+        <div>
+            <h2>나</h2>
+            <Dice color='blue' num={num} />
+            <h2>총점</h2>
+            <p>{sum}</p>
+            <h2>기록</h2>
+            {gameHistory.join(', ')}
+        </div>
+    </div>
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+);
+```

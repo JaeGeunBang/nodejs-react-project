@@ -150,3 +150,8 @@ const handleLoad = useCallback(
 여기에서도 마찬가지로, useCallback 내에 호출하는 함수가 있으면, 그 함수를 dependency에 추가해야되며 이 함수또한 useCallback으로 구현해야된다.
 - 참고로 setItems, setOffect, setHasNext는 React 에서 제공하는 setter 함수이므로, dependency에 추가 안해도됨
 - 여기선 getReviewsAsync만 추가하면 된다. (그럼 getReviewsAsync 내에서도 호출하는 외부 함수는 dependency를 추가해줘야함)
+
+## Context
+전역 데이터 적용할때 사용함 (props, state로 한계가 있을때)
+
+
