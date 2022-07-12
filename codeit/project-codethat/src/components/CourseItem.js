@@ -3,6 +3,7 @@ import CourseIcon from './CourseIcon';
 import Tags from './Tags';
 import getCourseColor from '../utils/getCourseColor';
 import styles from './CourseItem.module.css';
+import {Link} from "react-router-dom";
 
 const DIFFICULTY = ['입문', '초급', '중급', '고급'];
 
@@ -20,7 +21,7 @@ function CourseItem({ course }) {
         <CourseIcon photoUrl={course.photoUrl} />
       </div>
       <div className={styles.content}>
-        <h2 className={styles.title}>{course.title}</h2>
+          <h2 className={styles.title}><Link to={`/courses/${course.slug}`}>{course.title}</Link></h2>
         <p className={styles.description}>{showSummary && course.summary}</p>
         <div>
           <Tags values={[course.language, difficulty]} />
